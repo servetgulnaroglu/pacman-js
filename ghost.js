@@ -21,12 +21,12 @@ class Ghost {
         this.imageY = imageY;
         this.imageHeight = imageHeight;
         this.imageWidth = imageWidth;
-        this.loopCounter = 1;
         this.range = range;
-        this.randomDirection = DIRECTION_BOTTOM;
+        this.randomTargetIndex = parseInt(Math.random() * 4);
+        this.target = randomTargetsForGhosts[this.randomTargetIndex];
         setInterval(() => {
             this.changeRandomDirection();
-        }, 5000);
+        }, 3000);
     }
 
     isInRange() {
@@ -42,36 +42,31 @@ class Ghost {
     }
 
     changeRandomDirection() {
-        this.randomDirection = this.randomDirection % 4;
-        this.randomDirection += parseInt(Math.random * 4);
-        this.randomDirection = (this.randomDirection % 4) + 1;
-        console.log("change");
+        let addition = 1;
+        this.randomTargetIndex += addition;
+        this.randomTargetIndex = this.randomTargetIndex % 4;
     }
 
-    playRandomMove() {
-        this.direction = this.randomDirection;
-        this.moveForwards();
-        if (this.checkCollisions()) {
-            this.moveBackwards();
-            this.changeRandomDirection();
-        } else {
-            this.moveBackwards();
-        }
-    }
+    // playRandomMove() {
+    //     console.log("random ");
+    //     this.target = randomDirectionsForGhosts[this.randomDirectionIndex];
+    //     this.moveForwards();
+    //     if (this.checkCollisions()) {
+    //         this.moveBackwards();
+    //         this.changeRandomDirection();
+    //     } else {
+    //         this.moveBackwards();
+    //     }
+    // }
 
     moveProcess() {
-        // console.log(this.loopCounter);
-        // console.log(parseInt(oneBlockSize / this.speed));
-        // console.log(this.loopCounter % parseInt(oneBlockSize / this.speed));
-
         if (this.isInRange()) {
-            this.changeDirectionIfPossible();
+            this.target = pacman;
         } else {
-            this.playRandomMove();
+            this.target = randomTargetsForGhosts[this.randomTargetIndex];
         }
-
+        this.changeDirectionIfPossible();
         this.moveForwards();
-
         if (this.checkCollisions()) {
             this.moveBackwards();
             return;
@@ -137,22 +132,23 @@ class Ghost {
         let tempDirection = this.direction;
         this.direction = this.calculateNewDirection(
             map,
-            parseInt(pacman.x / oneBlockSize),
-            parseInt(pacman.y / oneBlockSize)
+            parseInt(this.target.x / oneBlockSize),
+            parseInt(this.target.y / oneBlockSize)
         );
         if (typeof this.direction == "undefined") {
-            console.log("undefined");
             this.direction = tempDirection;
             return;
         }
-        this.loopCounter++;
         this.moveForwards();
-        if (this.checkCollisions()) {
+        let addition = 0;
+        while (this.checkCollisions()) {
+            console.log("collided", addition);
             this.moveBackwards();
-            this.direction = tempDirection;
-        } else {
-            this.moveBackwards();
+            this.direction = (tempDirection + addition) % 4;
+            this.moveForwards();
+            addition++;
         }
+        this.moveBackwards();
     }
 
     calculateNewDirection(map, destX, destY) {
@@ -168,8 +164,6 @@ class Ghost {
                 moves: [],
             },
         ];
-        console.log("");
-
         while (queue.length > 0) {
             let poped = queue.shift();
             if (poped.x == destX && poped.y == destY) {
@@ -225,7 +219,7 @@ class Ghost {
         ) {
             let tempMoves = poped.moves.slice();
             tempMoves.push(DIRECTION_BOTTOM);
-            queue.push({ x: poped.x - 1, y: poped.y + 1, moves: tempMoves });
+            queue.push({ x: poped.x, y: poped.y + 1, moves: tempMoves });
         }
         return queue;
     }
@@ -269,6 +263,16 @@ class Ghost {
             this.height
         );
         canvasContext.restore();
+        canvasContext.beginPath();
+        canvasContext.strokeStyle = "red";
+        canvasContext.arc(
+            this.x + oneBlockSize / 2,
+            this.y + oneBlockSize / 2,
+            this.range * oneBlockSize,
+            0,
+            2 * Math.PI
+        );
+        canvasContext.stroke();
     }
 }
 

@@ -21,6 +21,18 @@ let ghostImageLocations = [
     { x: 176, y: 121 },
 ];
 
+// Game variables
+let fps = 30;
+let pacman;
+let oneBlockSize = 20;
+let score = 0;
+let ghosts = [];
+let wallSpaceWidth = oneBlockSize / 1.6;
+let wallOffset = (oneBlockSize - wallSpaceWidth) / 2;
+let wallInnerColor = "black";
+console.log(wallSpaceWidth);
+console.log(wallOffset);
+
 // we now create the map of the walls,
 // if 1 wall, if 0 not wall
 // 21 columns // 23 rows
@@ -48,6 +60,16 @@ let map = [
     [1, 2, 1, 1, 1, 1, 1, 1, 1, 2, 1, 2, 1, 1, 1, 1, 1, 1, 1, 2, 1],
     [1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1],
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+];
+
+let randomTargetsForGhosts = [
+    { x: 1 * oneBlockSize, y: 1 * oneBlockSize },
+    { x: 1 * oneBlockSize, y: (map.length - 2) * oneBlockSize },
+    { x: (map[0].length - 2) * oneBlockSize, y: oneBlockSize },
+    {
+        x: (map[0].length - 2) * oneBlockSize,
+        y: (map.length - 2) * oneBlockSize,
+    },
 ];
 
 // for (let i = 0; i < map.length; i++) {
@@ -230,13 +252,6 @@ class Pacman {
     }
 }
 
-// Game variables
-let fps = 30;
-let pacman;
-let oneBlockSize = 20;
-let score = 0;
-let ghosts = [];
-
 let createNewPacman = () => {
     pacman = new Pacman(
         oneBlockSize,
@@ -335,7 +350,7 @@ let draw = () => {
 
 let drawWalls = () => {
     for (let i = 0; i < map.length; i++) {
-        for (let j = 0; j < map[i].length; j++) {
+        for (let j = 0; j < map[0].length; j++) {
             if (map[i][j] == 1) {
                 createRect(
                     j * oneBlockSize,
@@ -344,6 +359,45 @@ let drawWalls = () => {
                     oneBlockSize,
                     "#342DCA"
                 );
+                if (j > 0 && map[i][j - 1] == 1) {
+                    createRect(
+                        j * oneBlockSize,
+                        i * oneBlockSize + wallOffset,
+                        wallSpaceWidth + wallOffset,
+                        wallSpaceWidth,
+                        wallInnerColor
+                    );
+                }
+
+                if (j < map[0].length - 1 && map[i][j + 1] == 1) {
+                    createRect(
+                        j * oneBlockSize + wallOffset,
+                        i * oneBlockSize + wallOffset,
+                        wallSpaceWidth + wallOffset,
+                        wallSpaceWidth,
+                        wallInnerColor
+                    );
+                }
+
+                if (i < map.length - 1 && map[i + 1][j] == 1) {
+                    createRect(
+                        j * oneBlockSize + wallOffset,
+                        i * oneBlockSize + wallOffset,
+                        wallSpaceWidth,
+                        wallSpaceWidth + wallOffset,
+                        wallInnerColor
+                    );
+                }
+
+                if (i > 0 && map[i - 1][j] == 1) {
+                    createRect(
+                        j * oneBlockSize + wallOffset,
+                        i * oneBlockSize,
+                        wallSpaceWidth,
+                        wallSpaceWidth + wallOffset,
+                        wallInnerColor
+                    );
+                }
             }
         }
     }
@@ -353,7 +407,7 @@ let createGhosts = () => {
     ghosts = [];
     for (let i = 0; i < ghostCount; i++) {
         let newGhost = new Ghost(
-            9 * oneBlockSize + (i % 2 == 0 ? 0 : 2) * oneBlockSize,
+            9 * oneBlockSize + (i % 2 == 0 ? 0 : 1) * oneBlockSize,
             10 * oneBlockSize + (i % 2 == 0 ? 0 : 1) * oneBlockSize,
             oneBlockSize,
             oneBlockSize,
@@ -362,7 +416,7 @@ let createGhosts = () => {
             ghostImageLocations[i % 4].y,
             124,
             116,
-            9 + i * 3
+            6 + i
         );
         ghosts.push(newGhost);
     }
