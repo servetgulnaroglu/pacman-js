@@ -168,6 +168,7 @@ class Ghost {
                 moves: [],
             },
         ];
+        console.log("");
 
         while (queue.length > 0) {
             let poped = queue.shift();
