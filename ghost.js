@@ -47,18 +47,6 @@ class Ghost {
         this.randomTargetIndex = this.randomTargetIndex % 4;
     }
 
-    // playRandomMove() {
-    //     console.log("random ");
-    //     this.target = randomDirectionsForGhosts[this.randomDirectionIndex];
-    //     this.moveForwards();
-    //     if (this.checkCollisions()) {
-    //         this.moveBackwards();
-    //         this.changeRandomDirection();
-    //     } else {
-    //         this.moveBackwards();
-    //     }
-    // }
-
     moveProcess() {
         if (this.isInRange()) {
             this.target = pacman;
@@ -113,7 +101,7 @@ class Ghost {
             map[parseInt(this.y / oneBlockSize)][
                 parseInt(this.x / oneBlockSize)
             ] == 1 ||
-            map[parseInt(this.y / oneBlockSize + 0.999)][
+            map[parseInt(this.y / oneBlockSize + 0.9999)][
                 parseInt(this.x / oneBlockSize)
             ] == 1 ||
             map[parseInt(this.y / oneBlockSize)][
@@ -140,14 +128,15 @@ class Ghost {
             return;
         }
         this.moveForwards();
-        let addition = 0;
-        while (this.checkCollisions()) {
-            console.log("collided", addition);
-            this.moveBackwards();
-            this.direction = (tempDirection + addition) % 4;
-            this.moveForwards();
-            addition++;
+        if (this.checkCollisions()) {
         }
+        // let addition = 0;
+        // while (this.checkCollisions()) {
+        //     this.moveBackwards();
+        //     this.direction = (tempDirection + addition) % 4;
+        //     this.moveForwards();
+        //     addition++;
+        // }
         this.moveBackwards();
     }
 
@@ -159,8 +148,10 @@ class Ghost {
 
         let queue = [
             {
-                x: parseInt(this.x / oneBlockSize),
-                y: parseInt(this.y / oneBlockSize),
+                x: this.getMapX(),
+                y: this.getMapY(),
+                rightX: this.getMapXRightSide(),
+                rightY: this.getMapYRightSide(),
                 moves: [],
             },
         ];
